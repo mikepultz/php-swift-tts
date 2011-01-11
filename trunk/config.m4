@@ -60,7 +60,7 @@ if test $PHP_SWIFT_TTS != "no"; then
 	PHP_ADD_LIBRARY_WITH_PATH(swift, /opt/swift/lib, SWIFT_TTS_SHARED_LIBADD)
 	PHP_ADD_LIBRARY_WITH_PATH(ceplang_en, /opt/swift/lib, SWIFT_TTS_SHARED_LIBADD)
 	PHP_ADD_LIBRARY_WITH_PATH(ceplex_us, /opt/swift/lib, SWIFT_TTS_SHARED_LIBADD)
-	PHP_NEW_EXTENSION(swift_tts, g711.cc php_swift.cc cswift.cc, $ext_shared)
+	PHP_NEW_EXTENSION(swift_tts, cg711.cc cswift.cc php_swift.cc, $ext_shared)
 
 	PHP_SWIFT_LAME
 	PHP_SWIFT_GSM
