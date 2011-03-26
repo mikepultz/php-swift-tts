@@ -101,7 +101,7 @@ PHP_METHOD(swift, __construct)
 	obj->sw = new cswift;
 	if (obj->sw == NULL)
 	{
-		// TODO: throw exception
+		zend_throw_exception(zend_exception_get_default(TSRMLS_C), "Failed to intialize swift engine.", 0 TSRMLS_CC);
 	}
 
 	//
@@ -109,7 +109,7 @@ PHP_METHOD(swift, __construct)
 	//
 	if (obj->sw->init() == false)
 	{
-		// TODO: throw exception
+		zend_throw_exception(zend_exception_get_default(TSRMLS_C), "Failed to intialize swift engine.", 0 TSRMLS_CC);
 	}
 }
 PHP_METHOD(swift, __destruct)
@@ -117,10 +117,7 @@ PHP_METHOD(swift, __destruct)
 	swift_object *obj = (swift_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
 	if (obj->sw != NULL)
 	{
-		if (obj->sw->shutdown() == false)
-		{
-			// TODO: throw exception
-		}
+		obj->sw->shutdown();
 	}
 }
 PHP_METHOD(swift, setVoice)
@@ -290,9 +287,9 @@ PHP_METHOD(swift, generate)
 					header.m_format_length = 16;
 					header.m_format = 1;
 					header.m_channels = 1;
-					header.m_sample_rate = 8000;
-					header.m_bytes_per_sec = 16000;
 					header.m_block_align = 2;
+					header.m_sample_rate = obj->sw->sample_rate();
+					header.m_bytes_per_sec = obj->sw->sample_rate() * 2;
 					header.m_bits_per_sample = 16;
 
 					//
@@ -351,6 +348,12 @@ PHP_METHOD(swift, generate)
 #ifdef HAVE_SWIFT_GSM
 			case SWIFT_FORMAT_GSM:
 			{
+				if (obj->sw->sample_rate() != 8000)
+				{
+					php_error_docref(NULL TSRMLS_CC, E_ERROR, "the GSM codec can only encode 8000hz voices.");
+					RETURN_FALSE;
+				}
+
 				gsm g;
 				gsm_frame *frame = NULL;
 				int16_t *a = (int16_t*)buffer;
@@ -405,7 +408,7 @@ PHP_METHOD(swift, generate)
 				}
 
 				lame_set_num_channels(encode_flags, 1);
-				lame_set_in_samplerate(encode_flags, 8000);
+				lame_set_in_samplerate(encode_flags, obj->sw->sample_rate());
 				lame_set_brate(encode_flags, 16);
 				lame_set_mode(encode_flags, MONO);
 				lame_set_quality(encode_flags, 2);

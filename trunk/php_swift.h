@@ -57,6 +57,7 @@ extern "C" {
 }
 
 #include "ext/standard/info.h"
+#include "zend_exceptions.h"
 
 extern zend_module_entry swift_tts_module_entry;
 #define phpext_swift_tts_ptr &swift_tts_module_entry;
