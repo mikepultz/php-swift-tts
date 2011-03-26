@@ -72,10 +72,19 @@ cswift::cswift() : m_last_error_message()
 	this->m_port = NULL;
 	this->m_voice = NULL;
 	this->m_params = NULL;
+
+	//
+	// this is set when you select a voice
+	//
+	this->m_sample_rate = 8000;
 }
 std::string cswift::last_error()
 {
 	return this->m_last_error_message;
+}
+int cswift::sample_rate()
+{
+	return this->m_sample_rate;
 }
 bool cswift::init()
 {
@@ -99,11 +108,7 @@ bool cswift::init()
 		return false;
 	}
 
-	//
-	// TODO: move these to config options
-	//
 	swift_params_set_string(this->m_params, "audio/encoding", "pcm16");
-	swift_params_set_int(this->m_params, "audio/sampling-rate", 8000);
 	swift_params_set_int(this->m_params, "audio/channels", 1);
 	swift_params_set_int(this->m_params, "audio/deadair", 0);
 
@@ -134,6 +139,8 @@ bool cswift::shutdown()
 }
 bool cswift::set_voice(const char *_voice)
 {
+	char *s = NULL;
+
 	if (this->m_port == NULL)
 	{
 		this->m_last_error_message = "invalid swift port; bad object.";
@@ -162,6 +169,15 @@ bool cswift::set_voice(const char *_voice)
 		this->m_last_error_message += _voice;
 
 		return false;
+	}
+
+	//
+	// store the sample rate for encoding later
+	//
+	s = (char*)swift_voice_get_attribute(this->m_voice, "sample-rate");
+	if (s != NULL)
+	{
+		this->m_sample_rate = atoi(s);
 	}
 
 	return true;		
@@ -292,6 +308,11 @@ bool cswift::generate(const char *_text, uint8_t **_buffer, int *_size)
 	if (this->m_port == NULL)
 	{
 		this->m_last_error_message = "invalid swift port; bad object.";
+		return false;
+	}
+	if (this->m_voice == NULL)
+	{
+		this->m_last_error_message = "you must select a voice to use before you generate.";
 		return false;
 	}
 	if (_text == NULL)

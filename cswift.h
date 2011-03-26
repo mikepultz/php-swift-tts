@@ -83,6 +83,8 @@ class cswift
 		swift_voice *m_voice;
 		swift_params *m_params;
 
+		int m_sample_rate;
+
 	public:
 		std::string m_last_error_message;
 
@@ -90,6 +92,8 @@ class cswift
 		cswift();
 
 		std::string last_error();
+
+		int sample_rate();
 
 		bool init();
 		bool shutdown();

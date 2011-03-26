@@ -4,16 +4,16 @@
 
     print_r($s->getVoices());
 
-    if ($s->setVoice("Allison-8kHz") !== false)
+    if ($s->setVoice("Allison") !== false)
     {
-        $st = $s->generate("hello my name is allison", SwiftTTS::FORMAT_GSM);
+        $st = $s->generate("hello my name is allison", SwiftTTS::FORMAT_WAV);
         if ($st !== FALSE)
         {
             $out = stream_get_contents($st);
         
             echo "read " . strlen($out) . " bytes";
 
-            $fp = fopen("test.gsm", "w");
+            $fp = fopen("test.wav", "w");
             if ($fp)
             {
                 fwrite($fp, $out);
@@ -21,7 +21,5 @@
             }
         }
     }
-
-phpinfo();
 
 ?>
